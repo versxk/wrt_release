@@ -6,7 +6,7 @@ set -o errtrace
 
 # 定义错误处理函数
 error_handler() {
-    echo "Error occurred in script at line: ${BASH_LINENO[0]}, command: '${BASH_COMMAND}'"
+    echo "Error occurred in script at line: ${BASH_LINENO[0]}， command: '${BASH_COMMAND}'"
 }
 
 # 设置trap捕获ERR信号
@@ -218,16 +218,6 @@ fix_mk_def_depends() {
     fi
 }
 
-add_wifi_default_set() {
-    local qualcommax_uci_dir="$BUILD_DIR/target/linux/qualcommax/base-files/etc/uci-defaults"
-    local filogic_uci_dir="$BUILD_DIR/target/linux/mediatek/filogic/base-files/etc/uci-defaults"
-    if [ -d "$qualcommax_uci_dir" ]; then
-        install -Dm755 "$BASE_PATH/patches/992_set-wifi-uci.sh" "$qualcommax_uci_dir/992_set-wifi-uci.sh"
-    fi
-    if [ -d "$filogic_uci_dir" ]; then
-        install -Dm755 "$BASE_PATH/patches/992_set-wifi-uci.sh" "$filogic_uci_dir/992_set-wifi-uci.sh"
-    fi
-}
 
 update_default_lan_addr() {
     local CFG_PATH="$BUILD_DIR/package/base-files/files/bin/config_generate"
@@ -261,9 +251,7 @@ remove_something_nss_kmod() {
         sed -i '/kmod-qca-nss-drv-mirror/d' $ipq_mk_path
         sed -i '/kmod-qca-nss-drv-tun6rd/d' $ipq_mk_path
         sed -i '/kmod-qca-nss-drv-tunipip6/d' $ipq_mk_path
-        sed -i '/kmod-qca-nss-drv-vxlanmgr/d' $ipq_mk_path
-        sed -i '/kmod-qca-nss-drv-wifi-meshmgr/d' $ipq_mk_path
-        sed -i '/kmod-qca-nss-macsec/d' $ipq_mk_path
+        sed -i '/kmod-qca-nss-drv-vxlanmgr/d' $ipq_mk_path        sed -i '/kmod-qca-nss-macsec/d' $ipq_mk_path
 
         sed -i 's/automount //g' $ipq_mk_path
         sed -i 's/cpufreq //g' $ipq_mk_path
@@ -292,16 +280,7 @@ fix_build_for_openssl() {
     fi
 }
 
-update_ath11k_fw() {
-    local makefile="$BUILD_DIR/package/firmware/ath11k-firmware/Makefile"
-    local new_mk="$BASE_PATH/patches/ath11k_fw.mk"
 
-    if [ -d "$(dirname "$makefile")" ] && [ -f "$makefile" ]; then
-        [ -f "$new_mk" ] && \rm -f "$new_mk"
-        curl -L -o "$new_mk" https://raw.githubusercontent.com/VIKINGYFY/immortalwrt/refs/heads/main/package/firmware/ath11k-firmware/Makefile
-        \mv -f "$new_mk" "$makefile"
-    fi
-}
 
 fix_mkpkg_format_invalid() {
     if [[ $BUILD_DIR =~ "imm-nss" ]]; then
@@ -758,12 +737,11 @@ main() {
     update_golang
     change_dnsmasq2full
     fix_mk_def_depends
-    add_wifi_default_set
     update_default_lan_addr
     remove_something_nss_kmod
     update_affinity_script
     # fix_build_for_openssl
-    update_ath11k_fw
+
     # fix_mkpkg_format_invalid
     chanage_cpuusage
     update_tcping
